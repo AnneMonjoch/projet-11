@@ -9,14 +9,31 @@ basePath: /api/v1
 schemes:
   - http
 paths:
-  /user/{account}/transactions:
-  /user/transactions?account=12345:
-    get:
+  /user/login:
+    post:
+      tags:
+        - User Module
+      summary: Login
+      description: API for Login
+      parameters:
+        - in: body
+          name: body
+          description: Login Payload
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      produces:
+        - application/json
       responses:
         '200':
+          description: Login Successfully
           schema:
-            $ref: '#/definitions/TransactionsResponse'
-  
+            $ref: '#/definitions/LoginResponse'
+        '400':
+          description: Invalid Fields
+        '500':
+          description: Internal Server Error
+
   /user/signup:
     post:
       tags:
@@ -41,25 +58,33 @@ paths:
           description: Invalid Fields
         '500':
           description: Internal Server Error
+
   /user/profile:
-    post:
+    get:
       security:
         - Bearer: []
       tags:
         - User Module
       summary: User Profile API
       description: API for fetching a user profile
-      #produces:
-       # - application/json
+      parameters:
+        - type: string
+          in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+      produces:
+        - application/json
       responses:
         '200':
-          description: User profile retrieved successully
+          description: User profile retrieved successfully
           schema:
             $ref: '#/definitions/ApiResponse'
         '400':
           description: Invalid Fields
         '500':
           description: Internal Server Error
+
     put:
       security:
         - Bearer: []
@@ -68,6 +93,11 @@ paths:
       summary: User Profile API
       description: API for updating a user profile
       parameters:
+        - type: string
+          in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
         - in: body
           name: body
           description: Update user profile attributes
@@ -78,18 +108,222 @@ paths:
         - application/json
       responses:
         '200':
-          description: User profile retrieved successully
+          description: User profile retrieved successfully
           schema:
             $ref: '#/definitions/ApiResponse'
         '400':
           description: Invalid Fields
         '500':
           description: Internal Server Error
+
+  /user/accounts/{accountId}:
+    get:
+      tags:
+        - User Transactions
+      summary: User's Account
+      description: API for getting all accounts
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+        - in: path
+          name: accountId
+          description: User's account ID
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: Transaction retrieved successfully
+          schema:
+            $ref: '#/definitions/Transactions'
+        '400':
+          description: Bad request. User ID must be an integer and larger than 0.
+        '500':
+          description: Internal Server Error
+
+  /user/accounts/{accountId}/transactions:
+    get:
+      tags:
+        - User Transactions
+      summary: Transactions
+      description: API for getting all transactions for the current month
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+        - in: path
+          name: accountId
+          description: User's account ID
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: Transaction retrieved successfully
+          schema:
+            $ref: '#/definitions/Transactions'
+        '400':
+          description: Bad request. User ID must be an integer and larger than 0.
+        '500':
+          description: Internal Server Error
+
+  /user/accounts/{accountId}/transactions/{transactionsId}:
+    get:
+      tags:
+        - User Transactions
+      summary: Transaction details
+      description: API for getting a single transaction details
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+        - in: path
+          name: accountId
+          description: User's account ID
+          type: integer
+          required: true
+        - in: path
+          name: transactionsId
+          description: Transaction's ID
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Transaction retrieved successfully
+          schema:
+            $ref: '#/definitions/Transactions'
+        '400':
+          description: Bad request. User ID/ transaction ID must be an integer and larger than 0.
+        '500':
+          description: Internal Server Error
+
+  /user/accounts/{accountId}/transactions/{transactionsId}/category:
+    patch:
+      tags:
+        - User Transactions
+      summary: Update an existing transaction (category)
+      description: API for updating a transaction's category
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+        - in: path
+          name: accountId
+          description: User's account ID
+          type: integer
+          required: true
+        - in: path
+          name: transactionsId
+          description: Transaction's ID
+          required: true
+          type: integer
+        - in: body
+          name: body
+          required: true
+          description: Update transaction's information
+          schema:
+            $ref: '#/definitions/TransactionsUpdateCategory'
+      responses:
+        '200':
+          description: Transaction updated successfully
+          schema:
+            $ref: '#/definitions/Transactions'
+        '400':
+          description: Bad request. User ID/ transaction ID must be an integer and larger than 0.
+        '500':
+          description: Internal Server Error
+
+  /user/accounts/{accountId}/transactions/{transactionsId}/notes:
+    patch:
+      tags:
+        - User Transactions
+      summary: Update an existing transaction (notes)
+      description: API for updating transaction's notes
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          type: string
+          required: true
+        - in: path
+          name: accountId
+          description: User's account ID
+          type: integer
+          required: true
+        - in: path
+          name: transactionsId
+          description: Transaction's ID
+          required: true
+          type: integer
+        - in: body
+          name: body
+          required: true
+          description: Update transaction's information
+          schema:
+            $ref: '#/definitions/TransactionsUpdateNotes'
+      responses:
+        '200':
+          description: Transaction updated successfully
+          schema:
+            $ref: '#/definitions/Transactions'
+        '400':
+          description: Bad request. User ID/ transaction ID must be an integer and larger than 0.
+        '500':
+          description: Internal Server Error
+
+    delete:
+      security:
+        - Bearer: []
+      tags:
+        - "User Transactions"
+      summary: "Delete a transaction note"
+      description: "API to delete a note"
+      parameters:
+        - in: header
+          name: Authorization
+          description: "Attach Bearer JWT Token"
+          required: true
+          type: string
+        - in: path
+          name: transaction_id
+          description: "Transaction ID"
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: "Delete completed successfully"
+        "400":
+          description: "Invalid Fields"
+        "401":
+          description: "Unauthorized, invalid token"
+        "403":
+          description: "Unauthorized, user not allowed to delete this transaction"
+        "500":
+          description: "Internal Server Error"
+
 securityDefinitions:
   Bearer:
     type: apiKey
     name: Authorization
     in: header
+
 definitions:
   User:
     properties:
@@ -105,9 +339,7 @@ definitions:
       lastName:
         type: string
         description: user last name
-      userName:
-        type: string
-        description: user public name
+
   Login:
     properties:
       email:
@@ -116,6 +348,7 @@ definitions:
       password:
         type: string
         description: user password
+
   ApiResponse:
     type: object
     properties:
@@ -130,25 +363,59 @@ definitions:
             type: string
           email:
             type: string
+
   LoginResponse:
     type: object
     properties:
       token:
         type: string
+
   UserProfile:
     type: object
     properties:
-      userName:
+      firstName:
         type: string
-  TransactionsResponse:
-    type: array
-    items:
-      type: object
-      properties:
-        date: 
-          type: string
-          format: date-time
-        description:
-          type: string
-        amount:
-          type: number
+      lastName:
+        type: string
+
+  Transactions:
+    type: object
+    properties:
+      transactionsId:
+        type: integer
+        format: int64
+      date:
+        type: string
+      description:
+        type: string
+      amount:
+        type: number
+      currency:
+        type: string
+      type:
+        type: string
+      category:
+        type: string
+      notes:
+        type: string
+
+  TransactionsUpdateCategory:
+    type: object
+    properties:
+      category:
+        type: string
+
+  TransactionsUpdateNotes:
+    type: object
+    properties:
+      notes:
+        type: string
+
+          
+          
+          
+          
+          
+          
+          
+          
