@@ -202,12 +202,12 @@ paths:
         '500':
           description: Internal Server Error
 
-  /user/accounts/{accountId}/transactions/{transactionsId}/category:
+  /user/accounts/{accountId}/transactions/{transactionsId}/categoryandnotes:
     patch:
       tags:
         - User Transactions
-      summary: Update an existing transaction (category)
-      description: API for updating a transaction's category
+      summary: Update an existing transaction (category or notes)
+      description: API for updating a transaction's category or notes
       consumes:
         - application/json
       produces:
@@ -233,7 +233,9 @@ paths:
           required: true
           description: Update transaction's information
           schema:
-            $ref: '#/definitions/TransactionsUpdateCategory'
+            oneOf:
+              - $ref: '#/definitions/TransactionsUpdateCategory'
+              - $ref: '#/definitions/TransactionsUpdateNotes'
       responses:
         '200':
           description: Transaction updated successfully
@@ -243,80 +245,6 @@ paths:
           description: Bad request. User ID/ transaction ID must be an integer and larger than 0.
         '500':
           description: Internal Server Error
-
-  /user/accounts/{accountId}/transactions/{transactionsId}/notes:
-    patch:
-      tags:
-        - User Transactions
-      summary: Update an existing transaction (notes)
-      description: API for updating transaction's notes
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: header
-          name: Authorization
-          description: Attach Bearer JWT token
-          type: string
-          required: true
-        - in: path
-          name: accountId
-          description: User's account ID
-          type: integer
-          required: true
-        - in: path
-          name: transactionsId
-          description: Transaction's ID
-          required: true
-          type: integer
-        - in: body
-          name: body
-          required: true
-          description: Update transaction's information
-          schema:
-            $ref: '#/definitions/TransactionsUpdateNotes'
-      responses:
-        '200':
-          description: Transaction updated successfully
-          schema:
-            $ref: '#/definitions/Transactions'
-        '400':
-          description: Bad request. User ID/ transaction ID must be an integer and larger than 0.
-        '500':
-          description: Internal Server Error
-
-    delete:
-      security:
-        - Bearer: []
-      tags:
-        - "User Transactions"
-      summary: "Delete a transaction note"
-      description: "API to delete a note"
-      parameters:
-        - in: header
-          name: Authorization
-          description: "Attach Bearer JWT Token"
-          required: true
-          type: string
-        - in: path
-          name: transaction_id
-          description: "Transaction ID"
-          required: true
-          type: integer
-      produces:
-        - application/json
-      responses:
-        "204":
-          description: "Delete completed successfully"
-        "400":
-          description: "Invalid Fields"
-        "401":
-          description: "Unauthorized, invalid token"
-        "403":
-          description: "Unauthorized, user not allowed to delete this transaction"
-        "500":
-          description: "Internal Server Error"
 
 securityDefinitions:
   Bearer:
@@ -381,22 +309,13 @@ definitions:
   Transactions:
     type: object
     properties:
-      transactionsId:
-        type: integer
-        format: int64
       date:
         type: string
       description:
         type: string
       amount:
         type: number
-      currency:
-        type: string
-      type:
-        type: string
-      category:
-        type: string
-      notes:
+      balance:
         type: string
 
   TransactionsUpdateCategory:
