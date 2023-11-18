@@ -216,7 +216,7 @@ paths:
         '200':
           description: Category and notes updated successfully
           schema:
-            $ref: '#/definitions/Transactions'
+            $ref: '#/definitions/Transaction'
         '400':
           description: Bad request. User ID/ transaction ID must be an integer and larger than 0.
         '500':
@@ -284,6 +284,22 @@ definitions:
  
         
   Transactions:
+    type: array
+    items:
+      properties:
+        transactionsId:
+          type: integer
+          format: int64
+        date:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        Balance:
+          type: string
+
+  Transaction:
     type: object
     properties:
       transactionsId:
@@ -303,7 +319,6 @@ definitions:
         type: string
       notes:
         type: string
-
 
 
   TransactionForAnotherView:
@@ -327,6 +342,17 @@ definitions:
         type: string
       notes:
         type: string
+
+ 
+          
+  CategoryAndNotes:
+    type: object
+    properties:
+      category:
+        type: string
+      notes:
+        type: string
+          
           
           
           
